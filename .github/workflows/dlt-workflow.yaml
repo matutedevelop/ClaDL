@@ -28,16 +28,16 @@ jobs:
 
       - name: Install deps
         run: pip install -r requirements.txt
-        - name: Test raw psql to local postgres
-          env:
-            PGHOST: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__HOST }}
-            PGPORT: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PORT }}
-            PGDATABASE: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DATABASE }}
-            PGUSER: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__USERNAME }}
-            PGPASSWORD: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PASSWORD }}
-          run: |
-            sudo apt-get update && sudo apt-get install -y postgresql-client
-            psql "sslmode=disable" -c "SELECT 1;"
+      - name: Test raw psql to local postgres
+        env:
+          PGHOST: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__HOST }}
+          PGPORT: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PORT }}
+          PGDATABASE: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DATABASE }}
+          PGUSER: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__USERNAME }}
+          PGPASSWORD: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PASSWORD }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          psql "sslmode=disable" -c "SELECT 1;"
       - name: Run dlt pipeline
         env:
           SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME }}
