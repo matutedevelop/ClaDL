@@ -44,7 +44,22 @@ jobs:
           run: |
             python3 - <<'EOF'
             import os
-            vars_to_check = ["SRC_USER", "SRC_PASS", "DEST_USER", "DEST_PASS"]
+            vars_to_check = [
+                "SOURCES__SQL_DATABASE__CREDENTIALS__USERNAME",
+                "SOURCES__SQL_DATABASE__CREDENTIALS__PASSWORD",
+                "SOURCES__SQL_DATABASE__CREDENTIALS__HOST",
+                "SOURCES__SQL_DATABASE__CREDENTIALS__PORT",
+                "SOURCES__SQL_DATABASE__CREDENTIALS__DATABASE",
+                "SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME",
+                "DESTINATION__POSTGRES__CREDENTIALS__USERNAME",
+                "DESTINATION__POSTGRES__CREDENTIALS__PASSWORD",
+                "DESTINATION__POSTGRES__CREDENTIALS__HOST",
+                "DESTINATION__POSTGRES__CREDENTIALS__PORT",
+                "DESTINATION__POSTGRES__CREDENTIALS__DATABASE",
+                "DESTINATION__POSTGRES__CREDENTIALS__CONNECT_TIMEOUT",
+                "TS_OAUTH_CLIENT_ID",
+                "TS_OAUTH_SECRET"
+            ]
             for name in vars_to_check:
                 val = os.environ.get(name, "")
                 try:
