@@ -17,7 +17,7 @@ jobs:
           tags: tag:ghbot
 
       - name: Test connectivity
-        run: tailscale ping --c 3 clarovent
+        run: tailscale ping --c 3 --until-direct=false clarovent
 
       - uses: actions/setup-python@v5
         with:
