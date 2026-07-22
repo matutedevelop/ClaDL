@@ -17,7 +17,7 @@ jobs:
           tags: tag:ghbot
 
       - name: Test connectivity
-        run: tailscale ping --c 3 ep-summer-block-ajitaxb1.c-3.us-east-2.aws.neon.tech
+        run: tailscale ping --c 3 clarovent
 
       - uses: actions/setup-python@v5
         with:
