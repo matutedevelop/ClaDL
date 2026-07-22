@@ -26,6 +26,29 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
 
+      - name: Check source secrets encoding
+        env:
+          V1: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME }}
+          V2: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DATABASE }}
+          V3: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__USERNAME }}
+          V4: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PASSWORD }}
+          V5: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__HOST }}
+          V6: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PORT }}
+        run: |
+          python3 - <<'EOF'
+          import os
+          names = {
+              "V1": "DRIVERNAME", "V2": "DATABASE", "V3": "USERNAME",
+              "V4": "PASSWORD", "V5": "HOST", "V6": "PORT",
+          }
+          for var, label in names.items():
+              val = os.environ.get(var, "")
+              try:
+                  val.encode("utf-8").decode("utf-8")
+                  print(f"{label}: OK ({len(val)} chars)")
+              except UnicodeDecodeError as e:
+                  print(f"{label}: BAD ENCODING -> {e}")
+          EOF
       - name: Run dlt pipeline
         env:
           SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME }}
@@ -41,35 +64,6 @@ jobs:
           DESTINATION__POSTGRES__CREDENTIALS__HOST: ${{ secrets.DESTINATION__POSTGRES__CREDENTIALS__HOST }}
           DESTINATION__POSTGRES__CREDENTIALS__PORT: ${{ secrets.DESTINATION__POSTGRES__CREDENTIALS__PORT }}
           DESTINATION__POSTGRES__CREDENTIALS__CONNECT_TIMEOUT: ${{ secrets.DESTINATION__POSTGRES__CREDENTIALS__CONNECT_TIMEOUT }}
-          run: |
-            python3 - <<'EOF'
-            import os
-            vars_to_check = [
-                "SOURCES__SQL_DATABASE__CREDENTIALS__USERNAME",
-                "SOURCES__SQL_DATABASE__CREDENTIALS__PASSWORD",
-                "SOURCES__SQL_DATABASE__CREDENTIALS__HOST",
-                "SOURCES__SQL_DATABASE__CREDENTIALS__PORT",
-                "SOURCES__SQL_DATABASE__CREDENTIALS__DATABASE",
-                "SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME",
-                "DESTINATION__POSTGRES__CREDENTIALS__USERNAME",
-                "DESTINATION__POSTGRES__CREDENTIALS__PASSWORD",
-                "DESTINATION__POSTGRES__CREDENTIALS__HOST",
-                "DESTINATION__POSTGRES__CREDENTIALS__PORT",
-                "DESTINATION__POSTGRES__CREDENTIALS__DATABASE",
-                "DESTINATION__POSTGRES__CREDENTIALS__CONNECT_TIMEOUT",
-                "TS_OAUTH_CLIENT_ID",
-                "TS_OAUTH_SECRET"
-            ]
-            for name in vars_to_check:
-                val = os.environ.get(name, "")
-                try:
-                    val.encode("utf-8").decode("utf-8")
-                    print(f"{name}: OK ({len(val)} chars)")
-                except UnicodeDecodeError as e:
-                    print(f"{name}: BAD ENCODING -> {e}")
-                    sys.exit(1)
-            print("all went good +_+_+_+_+_+_+_+_+")
-            EOF
         run: python pipeline.py
       - name: Notify Discord on failure
         if: failure()
