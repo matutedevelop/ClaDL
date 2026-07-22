@@ -28,7 +28,10 @@ jobs:
 
       - name: Install deps
         run: pip install -r requirements.txt
-
+      - name: Check locale
+        run: |
+          python3 -c "import locale; print(locale.getpreferredencoding())"
+          locale
       - name: Run dlt pipeline
         env:
           SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME }}
