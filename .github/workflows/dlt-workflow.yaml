@@ -41,4 +41,23 @@ jobs:
           DESTINATION__POSTGRES__CREDENTIALS__HOST: ${{ secrets.DESTINATION__POSTGRES__CREDENTIALS__HOST }}
           DESTINATION__POSTGRES__CREDENTIALS__PORT: ${{ secrets.DESTINATION__POSTGRES__CREDENTIALS__PORT }}
           DESTINATION__POSTGRES__CREDENTIALS__CONNECT_TIMEOUT: ${{ secrets.DESTINATION__POSTGRES__CREDENTIALS__CONNECT_TIMEOUT }}
+          run: |
+            python3 - <<'EOF'
+            import os
+            vars_to_check = ["SRC_USER", "SRC_PASS", "DEST_USER", "DEST_PASS"]
+            for name in vars_to_check:
+                val = os.environ.get(name, "")
+                try:
+                    val.encode("utf-8").decode("utf-8")
+                    print(f"{name}: OK ({len(val)} chars)")
+                except UnicodeDecodeError as e:
+                    print(f"{name}: BAD ENCODING -> {e}")
+            EOF
         run: python pipeline.py
+      - name: Notify Discord on failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+            -d '{"content": " DLT scheduled run failed on `${{ github.repository }}` — revisa el log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
+
