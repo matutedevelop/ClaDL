@@ -6,6 +6,9 @@ on:
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
+    env:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     steps:
       - uses: actions/checkout@v4
 
@@ -26,29 +29,6 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
 
-      - name: Check source secrets encoding
-        env:
-          V1: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME }}
-          V2: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DATABASE }}
-          V3: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__USERNAME }}
-          V4: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PASSWORD }}
-          V5: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__HOST }}
-          V6: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__PORT }}
-        run: |
-          python3 - <<'EOF'
-          import os
-          names = {
-              "V1": "DRIVERNAME", "V2": "DATABASE", "V3": "USERNAME",
-              "V4": "PASSWORD", "V5": "HOST", "V6": "PORT",
-          }
-          for var, label in names.items():
-              val = os.environ.get(var, "")
-              try:
-                  val.encode("utf-8")
-                  print(f"{label}: OK ({len(val)} chars)")
-              except UnicodeEncodeError as e:
-                  print(f"{label}: BAD ENCODING -> {e}")
-          EOF
       - name: Run dlt pipeline
         env:
           SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME: ${{ secrets.SOURCES__SQL_DATABASE__CREDENTIALS__DRIVERNAME }}
