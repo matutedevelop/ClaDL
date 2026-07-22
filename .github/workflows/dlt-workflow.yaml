@@ -1,6 +1,8 @@
 name: dlt-workflow
 
 on:
+  schedule:
+    - cron: '0 0 * * 1'
   workflow_dispatch:   # para poder correrlo manual primero
 
 jobs:
