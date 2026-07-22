@@ -44,9 +44,9 @@ jobs:
           for var, label in names.items():
               val = os.environ.get(var, "")
               try:
-                  val.encode("utf-8").decode("utf-8")
+                  val.encode("utf-8")
                   print(f"{label}: OK ({len(val)} chars)")
-              except UnicodeDecodeError as e:
+              except UnicodeEncodeError as e:
                   print(f"{label}: BAD ENCODING -> {e}")
           EOF
       - name: Run dlt pipeline
